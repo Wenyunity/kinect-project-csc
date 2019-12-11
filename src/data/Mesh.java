@@ -4,6 +4,12 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 
+/**
+ * Main class for handling the mesh.
+ * 
+ * @author Bakar
+ *
+ */
 public class Mesh {
 
 	/**
@@ -30,7 +36,7 @@ public class Mesh {
 	/**
 	 * If the distance between the four dots is above the limit, do not draw.
 	 */
-	static final double DIST_LIMIT = 2000;
+	static final double DIST_LIMIT = 1000;
 	
 	/**
 	 * Multiplies object by this size
@@ -47,9 +53,12 @@ public class Mesh {
 		width = widthArray;
 		height = heightArray;
 		storedValues = new Filter(width * height, width, height, 2);
-		background = new BackgroundFilter(1);
+		background = new BackgroundFilter(200);
 	}
 	
+	/**
+	 * Set current frame of the mesh to the background
+	 */
 	public void setBackground() {
 		backgroundSet = true;
 		background.setBackground(storedValues.getArray());
@@ -153,5 +162,13 @@ public class Mesh {
 	 */
 	public void updateArray(int[] array) {
 		storedValues.updateArray(array);
+	}
+	
+	/**
+	 * Changes how far away from the background an object has to be to be considered foreground
+	 * @param change Amount to change by
+	 */
+	public void changeBackground(int change) {
+		background.changeThreshold(change);
 	}
 }

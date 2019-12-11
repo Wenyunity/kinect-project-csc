@@ -83,6 +83,7 @@ public class Kinect extends PApplet {
 	 * Press p to activate Kinect Camera
 	 * Press b to activate Background
 	 * Press z to make the picture smaller, press x to make the picture bigger
+	 * Press n to decrease background sensitivity, press b to increase background sensitivity
 	 */
 	public void keyPressed() {
 		switch (key) {
@@ -94,11 +95,19 @@ public class Kinect extends PApplet {
 			getCloudImage = !getCloudImage;
 			System.out.println(getCloudImage);
 			break;
+		// Changes ratio
 		case 'z':
 			mesh.changeRatio(-0.05f);
 			break;
 		case 'x':
 			mesh.changeRatio(0.05f);
+			break;
+		// Changes background
+		case 'n':
+			mesh.changeBackground(-5);
+			break;
+		case 'm':
+			mesh.changeBackground(5);
 			break;
 		}		
 	}
