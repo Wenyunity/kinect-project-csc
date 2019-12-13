@@ -85,12 +85,16 @@ public class Kinect extends PApplet {
 	 * Press b to activate Background
 	 * Press z to make the picture smaller, press x to make the picture bigger
 	 * Press n to decrease background sensitivity, press b to increase background sensitivity
+	 * Press c to draw the center white and edges cyan
 	 */
 	public void keyPressed() {
 		switch (key) {
 		// Sets background
 		case 'b':
 			mesh.setBackground();
+			break;
+		case 'c':
+			mesh.drawCenter();
 			break;
 		case 'p':
 			getCloudImage = !getCloudImage;

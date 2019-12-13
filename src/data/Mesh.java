@@ -32,17 +32,20 @@ public class Mesh {
 	 * Handles background
 	 */
 	BackgroundFilter background;
+	/**
+	 * True if center needs to be drawn
+	 */
+	boolean drawCenter = false;
 	
 	/**
 	 * If the distance between the four dots is above the limit, do not draw.
 	 */
-	static final double DIST_LIMIT = 1000;
+	static final double DIST_LIMIT = 1500;
 	
 	/**
 	 * Multiplies object by this size
 	 */
 	float ratio = 0.2f;
-	float a = 0;
 	
 	/**
 	 * Create a new mesh
@@ -73,12 +76,16 @@ public class Mesh {
 		applet.pushMatrix();
 		applet.rotateY(PConstants.PI);
 		applet.fill(255f, 255f, 255f);
-		applet.stroke(0f, 0f, 0f, 0.2f);
+		applet.stroke(0f, 0f, 0f, 0f);
 		PVector[] front = storedValues.getVectorArray();
 		boolean[] foreground = null;
+		float[] center = null;
 		// Calculate which part is in the foreground
 		if (backgroundSet) {
 			foreground = background.calcForeground(storedValues.getArray());
+			if (drawCenter) {
+				center = findCenter(foreground);
+			}
 		}
 		// Loop through
 		for (int x = spacing/2; x < width - spacing; x += spacing) {
@@ -88,6 +95,11 @@ public class Mesh {
 		    	 if (backgroundSet) {
 		    		 if (!testForeground(foreground, offset, spacing)) {
 		    			 continue;
+		    		 }
+		    		 // If this is set, color the center more cyan
+		    		 if (drawCenter) {
+		    			 float distance = Math.abs(x - center[0]) + Math.abs(y - center[1]);
+		    			 applet.fill(255f - distance, 255f, 255f);
 		    		 }
 		    	 }
 		    	 PVector point = front[offset];
@@ -105,13 +117,36 @@ public class Mesh {
 		    }     
 		}
 		applet.popMatrix();
-		a += 0.01f;
+	}
+	
+	/**
+	 * Finds the center of all foreground pixels
+	 */
+	float[] findCenter(boolean[] foregroundArray) {
+		float[] result = {0f, 0f};
+		int counter = 0;
+		// Iterate through array to get every pixel in foreground
+		for (int x = 0; x < width; x += 1) {
+		     for (int y = 0; y < height; y += 1) {
+		    	 int offset = x + y * width;
+		    	 if (foregroundArray[offset]) {
+		    		 result[0] += x;
+		    		 result[1] += y;
+		    		 counter++;
+		    	 }
+		     }
+		}
+		if (counter > 0) {
+			result[0] = result[0]/counter;
+			result[1] = result[1]/counter;
+		}
+		return result;
 	}
 	
 	/**
 	 * Tests if all four points specified are part of the foreground
 	 */
-	boolean testForeground (boolean[] foregroundArray, int offset, int spacing) {
+	boolean testForeground(boolean[] foregroundArray, int offset, int spacing) {
 		return foregroundArray[offset] && foregroundArray[offset+spacing] && foregroundArray[offset+spacing+width*spacing] && foregroundArray[offset+width*spacing];
 	}
 	
@@ -124,8 +159,8 @@ public class Mesh {
 	 * @return True if the distance between values is not too big, false otherwise
 	 */
 	boolean testSquare(PVector point1, PVector point2, PVector point3, PVector point4) {
-		PVector zero = new PVector(0, 0, 0);
-		if (point1.equals(zero) || point2.equals(zero) || point3.equals(zero) || point4.equals(zero)) {
+		PVector invalid = new PVector(-100, -100, -100);
+		if (point1.equals(invalid) || point2.equals(invalid) || point3.equals(invalid) || point4.equals(invalid)) {
 			return false;
 		}
 		return (PVector.dist(point1, point2) + PVector.dist(point2, point3) + PVector.dist(point3, point4) + PVector.dist(point4, point1)) < DIST_LIMIT;
@@ -138,24 +173,6 @@ public class Mesh {
 	public void changeRatio(float change) {
 		ratio += change;
 	}
-	/**public void getMesh(int spacing, PApplet applet) {
-		int[] data = storedValues.getArray();
-		for (int x = spacing/2; x < width - spacing; x += spacing) {
-		     for (int y = spacing/2; y < height - spacing; y += spacing) {
-		    	  applet.beginShape();
-		    	  int offset = x + y * width;
-		    	  PVector point = pointConv.depthToPointCloudPos(x, y, data[offset]);
-		    	  applet.vertex(point.x/10, point.y/10, point.z/10);
-		    	  PVector point2 = pointConv.depthToPointCloudPos(x+spacing, y, data[offset+spacing]);
-		    	  applet.vertex(point2.x/10, point2.y/10, point2.z/10);
-		    	  PVector point3 = pointConv.depthToPointCloudPos(x+spacing, y+spacing, data[offset+spacing+width*spacing]);
-		    	  applet.vertex(point3.x/10, point3.y/10, point3.z/10);
-		    	  PVector point4 = pointConv.depthToPointCloudPos(x, y+spacing, data[offset+width*spacing]);
-		    	  applet.vertex(point4.x/10, point4.y/10, point4.z/10);
-		    	  applet.endShape(PConstants.CLOSE);
-		     }     
-		}
-	}*/
 	
 	/**
 	 * Updates filter array
@@ -171,5 +188,12 @@ public class Mesh {
 	 */
 	public void changeBackground(int change) {
 		background.changeThreshold(change);
+	}
+	
+	/**
+	 * Toggles center between true and false
+	 */
+	public void drawCenter() {
+		drawCenter = !drawCenter;
 	}
 }

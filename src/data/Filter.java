@@ -42,7 +42,15 @@ public class Filter {
 	/**
 	 * If stability is less than this number, updates PVector
 	 */
-	static double UPDATE_PVECTOR_BELOW = 1.2;
+	static double UPDATE_PVECTOR_BELOW = 1.3;
+	/**
+	 * If stability is less than this number, removes vector
+	 */
+	static double REMOVE_PVECTOR_BELOW = 0.3;
+	/**
+	 * The maximum amount that the stored value of the PVector will factor in when changing.
+	 */
+	double maxOldVectorCoefficient = 0.9;
 	
 	
 	// Width of array
@@ -114,6 +122,10 @@ public class Filter {
 	 */
 	void averagePixel(int index, int newValue) {
 		if (newValue == 0) {
+			updateStability(index, -1000);
+			if (stability[index] < REMOVE_PVECTOR_BELOW) {
+				removePVector(index);
+			}
 			return;
 		}
 		else {
@@ -151,7 +163,8 @@ public class Filter {
 	 * @param newValue
 	 */
 	void updateValue(int index, int newValue) {
-		filterArray[index] = (int)Math.round(newValue * (1 - stability[index]) + filterArray[index] * stability[index]);
+		double valueChange = Math.min(stability[index], maxOldVectorCoefficient);
+		filterArray[index] = (int)Math.round(newValue * (1 - valueChange) + filterArray[index] * valueChange);
 	}
 	
 	/**
@@ -180,5 +193,12 @@ public class Filter {
 		int x = index % width;
 		int y = Math.floorDiv(index, width);
 		vectorArray[index] = vectorCreate.depthToPointCloudPos(x, y, filterArray[index]);
+	}
+	
+	/**
+	 * Removes a PVector
+	 */
+	void removePVector(int index) {
+		vectorArray[index] = new PVector(-100, -100, -100);
 	}
 }
