@@ -10,3 +10,4 @@
 - b - Takes the current frame and sets it as the background
 - z/x - Decreases/Increases the scale of the mesh
 - n/m - Decreases/Increases the difference needed to be considered not part of the background
+- c - Toggles center drawing (if on, center will be white and edges cyan)
