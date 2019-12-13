@@ -68,6 +68,7 @@ public class Kinect extends PApplet {
 	 */
 	public void draw() {
 		// Camera positions
+		lights();
 		camera(0f, 0f, temp2, 0f, 0f, temp, 0f, 1f, 0f);
 		// Threshold the depth image
 		background(0, 0, 0);

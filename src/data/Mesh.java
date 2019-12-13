@@ -73,6 +73,7 @@ public class Mesh {
 		applet.pushMatrix();
 		applet.rotateY(PConstants.PI);
 		applet.fill(255f, 255f, 255f);
+		applet.stroke(0f, 0f, 0f, 0.2f);
 		PVector[] front = storedValues.getVectorArray();
 		boolean[] foreground = null;
 		// Calculate which part is in the foreground
