@@ -10,4 +10,6 @@
 - b - Takes the current frame and sets it as the background
 - z/x - Decreases/Increases the scale of the mesh
 - n/m - Decreases/Increases the difference needed to be considered not part of the background
-- c - Toggles center drawing (if on, center will be white and edges cyan)
+- c - Uses the red channel to show how far from the center the surface is (only works if background is set)
+- f - Uses the green channel to show how angled the surface is in the X-direction
+- g - Uses the blue channel to show how angled the surface is in the Y-direction
