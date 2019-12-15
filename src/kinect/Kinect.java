@@ -93,9 +93,19 @@ public class Kinect extends PApplet {
 		case 'b':
 			mesh.setBackground();
 			break;
+		// Draws center
 		case 'c':
 			mesh.drawCenter();
 			break;
+		// Draws angle colors
+		case 'f':
+			mesh.toggleAngleXColor();
+			break;
+		// Draws angle colors
+		case 'g':
+			mesh.toggleAngleYColor();
+			break;
+		// Draws cloud image
 		case 'p':
 			getCloudImage = !getCloudImage;
 			System.out.println(getCloudImage);

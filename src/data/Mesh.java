@@ -36,7 +36,19 @@ public class Mesh {
 	 * True if center needs to be drawn
 	 */
 	boolean drawCenter = false;
+	/**
+	 * True if angle in x direction will be represented by green channel
+	 */
+	boolean colorAngleX = false;
 	
+	/**
+	 * True if angle in y direction will be represented by blue channel
+	 */
+	boolean colorAngleY = false;
+	/**
+	 * Used for calculating how green/blue the slope color should be
+	 */
+	static final float DIFF_MULTIPLIER = 3f;
 	/**
 	 * If the distance between the four dots is above the limit, do not draw.
 	 */
@@ -91,24 +103,38 @@ public class Mesh {
 		for (int x = spacing/2; x < width - spacing; x += spacing) {
 		     for (int y = spacing/2; y < height - spacing; y += spacing) {
 		    	 int offset = x + y * width;
+		    	 // To change the color of the
+		    	 float redFill = 255f;
+		    	 float greenFill = 255f;
+		    	 float blueFill = 255f;
 		    	 // If the background is set, and the square is part of the background, skip
 		    	 if (backgroundSet) {
 		    		 if (!testForeground(foreground, offset, spacing)) {
 		    			 continue;
 		    		 }
-		    		 // If this is set, color the center more cyan
+		    		 // If this is set, the further away from the center, the less red it is.
 		    		 if (drawCenter) {
 		    			 float distance = Math.abs(x - center[0]) + Math.abs(y - center[1]);
-		    			 applet.fill(255f - distance, 255f, 255f);
+		    			 redFill = 255f - distance;
 		    		 }
 		    	 }
-		    	 PVector point = front[offset];
+		    	 // Get the points
+		    	 PVector point1 = front[offset];
 		    	 PVector point2 = front[offset+spacing];
 		    	 PVector point3 = front[offset+spacing+width*spacing];
 		    	 PVector point4 = front[offset+width*spacing];
-		    	 if (testSquare(point, point2, point3, point4)) {
+		    	 if (testSquare(point1, point2, point3, point4)) {
+		    		 // Set the green and blue coloring
+			    	 if (colorAngleX) {
+			    		 greenFill = xDifference(point1, point2, point3, point4);
+			    	 }
+			    	 if (colorAngleY) {
+			    		 blueFill = yDifference(point1, point2, point3, point4);
+			    	 }
+			    	 applet.fill(redFill, greenFill, blueFill);
+			    	 // Draw the shape
 		    		 applet.beginShape();
-			    	 applet.vertex(point.x*ratio, point.y*ratio, point.z*ratio);
+			    	 applet.vertex(point1.x*ratio, point1.y*ratio, point1.z*ratio);
 			    	 applet.vertex(point2.x*ratio, point2.y*ratio, point2.z*ratio);
 			    	 applet.vertex(point3.x*ratio, point3.y*ratio, point3.z*ratio);
 			    	 applet.vertex(point4.x*ratio, point4.y*ratio, point4.z*ratio);
@@ -195,5 +221,45 @@ public class Mesh {
 	 */
 	public void drawCenter() {
 		drawCenter = !drawCenter;
+	}
+	
+	/**
+	 * Toggles drawing colors for the X direction from true to false
+	 */
+	public void toggleAngleXColor() {
+		colorAngleX = !colorAngleX;
+	}
+	
+	/**
+	 * Toggles drawing colors for the Y direction from true to false
+	 */
+	public void toggleAngleYColor() {
+		colorAngleY = !colorAngleY;
+	}
+	
+	/**
+	 * Calculates the difference between four points when being used, compares left with right
+	 * @param point1 (top-left)
+	 * @param point2 (top-right)
+	 * @param point3 (bottom-right)
+	 * @param point4 (bottom-left)
+	 * @return 
+	 */
+	public float xDifference(PVector point1, PVector point2, PVector point3, PVector point4) {
+		float difference = Math.abs(point1.z + point4.z - point3.z - point2.z);
+		return 255f - difference*DIFF_MULTIPLIER;
+	}
+	
+	/**
+	 * Calculates the difference between four points when being used, compare top with bottom
+	 * @param point1 (top-left)
+	 * @param point2 (top-right)
+	 * @param point3 (bottom-right)
+	 * @param point4 (bottom-left)
+	 * @return 
+	 */
+	public float yDifference(PVector point1, PVector point2, PVector point3, PVector point4) {
+		float difference = Math.abs(point1.z + point2.z - point3.z - point4.z);
+		return 255f - difference*DIFF_MULTIPLIER;
 	}
 }
